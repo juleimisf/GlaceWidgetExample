@@ -1,22 +1,25 @@
 package com.makesmartapps.glacewidgetexample
 
 import android.content.Context
+import android.util.Log
+import android.widget.Toast
+import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.*
+import androidx.glance.action.clickable
 import androidx.glance.appwidget.*
 import androidx.glance.layout.*
 import androidx.glance.material3.ColorProviders
-import androidx.glance.text.Text
-import androidx.glance.text.TextStyle
 import com.makesmartapps.glacewidgetexample.ui.theme.DarkColorScheme
 import com.makesmartapps.glacewidgetexample.ui.theme.LightColorScheme
 import androidx.glance.layout.Column
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.items
+import androidx.glance.text.*
 
 object ContactListWidget : GlanceAppWidget() {
 
@@ -34,9 +37,9 @@ fun WidgetContent() {
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
-            .background(GlanceTheme.colors.background)
             .padding(8.dp)
             .cornerRadius(20.dp)
+            .background(ImageProvider(R.drawable.bg_background_white))
     ) {
         Column(modifier = GlanceModifier.padding(8.dp).fillMaxSize()) {
             WidgetHeader()
@@ -62,18 +65,20 @@ private fun WidgetHeader() {
 
         ) {
             Text(
-                text = "Title",
+                text = "TaskTracker",
                 style = TextStyle(
                     color = GlanceTheme.colors.onSurface,
-                    fontSize = 24.sp
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
                 )
             )
         }
+        Text(text = "Add new task", style = TextStyle(fontSize = 10.sp))
         Image(
-            ImageProvider(R.drawable.ic_add_foreground),
+            ImageProvider(R.drawable.ic_add_task_foreground),
             contentDescription = null,
             colorFilter = ColorFilter.tint(GlanceTheme.colors.onSurface),
-            modifier = GlanceModifier.padding(8.dp)
+            modifier = GlanceModifier.size(42.dp)
         )
     }
 }
@@ -95,26 +100,54 @@ private fun TaskItem(item: Task) {
         Row(
             modifier = GlanceModifier
                 .fillMaxWidth()
-                .background(GlanceTheme.colors.onSurface),
+                .background(ImageProvider(R.drawable.bg_background)),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = item.name,
-                style = TextStyle(
-                    fontSize = 14.sp
-                ),
-                modifier = GlanceModifier.padding(start = 8.dp).defaultWeight()
-            )
+            Column(GlanceModifier.padding(8.dp).defaultWeight()) {
+                val textStyle = if (item.state == StateTack.COMPLETED) {
+                    TextStyle(
+                        color = GlanceTheme.colors.onSurface,
+                        textDecoration = TextDecoration.LineThrough
+                    )
+                } else {
+                    TextStyle(color = GlanceTheme.colors.onSurface)
+                }
+                Text(
+                    text = item.name,
+                    style = textStyle
+                )
+                Spacer(modifier = GlanceModifier.height(4.dp))
+                Text(
+                    text = "Deadline: ${item.date}",
+                    style = TextStyle(fontSize = 10.sp, fontStyle = FontStyle.Italic)
+
+                )
+            }
+            val context = LocalContext.current
+
+            var resource by remember { mutableStateOf(R.drawable.ic_check_task_foreground) }
+            if (item.state == StateTack.COMPLETED) {
+                resource = R.drawable.ic_check_task_foreground
+            } else {
+                resource = R.drawable.ic_uncheck_task_foreground
+            }
             Image(
-                ImageProvider(
-                    if (item.state == StateTack.COMPLETED) {
-                        R.drawable.ic_check_task
-                    } else {
-                        R.drawable.ic_unchecked_task
-                    }
-                ),
+                ImageProvider(resource),
                 contentDescription = null,
-                modifier = GlanceModifier.padding(8.dp).size(42.dp)
+                modifier = GlanceModifier.padding(8.dp).size(42.dp).clickable {
+                    if (item.state == StateTack.PENDING) {
+                        resource = R.drawable.ic_check_task_foreground
+                        Toast.makeText(context, "Excellent! Task accomplished.", Toast.LENGTH_SHORT)
+                            .show()
+                    } else {
+                        resource = R.drawable.ic_uncheck_task_foreground
+                        Toast.makeText(
+                            context,
+                            "Task reverted to not completed.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
             )
         }
         Spacer(modifier = GlanceModifier.height(8.dp))
