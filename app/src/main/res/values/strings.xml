@@ -1,6 +1,9 @@
 <resources>
-    <string name="app_name">WidgetCourse</string>
-    <string name="appwidget_text">EXAMPLE</string>
-    <string name="add_widget">Add widget</string>
-    <string name="app_widget_description">This is an app widget description</string>
+    <string name="app_name">TaskTrackerApp</string>
+    <string name="task_app_title">TaskTracker</string>
+    <string name="task_app_add_new_task_label">Add new task</string>
+    <string name="task_app_deadline_task_label">Deadline:</string>
+    <string name="task_app_action_add_task_label">Excellent! Task accomplished.</string>
+    <string name="task_app_action_remove_task_label">Task reverted to not completed.</string>
+
 </resources>

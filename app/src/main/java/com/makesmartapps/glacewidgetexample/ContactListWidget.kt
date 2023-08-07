@@ -3,37 +3,36 @@ package com.makesmartapps.glacewidgetexample
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.*
 import androidx.glance.action.clickable
-import androidx.glance.appwidget.*
 import androidx.glance.layout.*
 import androidx.glance.material3.ColorProviders
 import com.makesmartapps.glacewidgetexample.ui.theme.DarkColorScheme
 import com.makesmartapps.glacewidgetexample.ui.theme.LightColorScheme
 import androidx.glance.layout.Column
 import androidx.glance.appwidget.lazy.LazyColumn
-import androidx.glance.appwidget.lazy.items
 import androidx.glance.text.*
+import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import androidx.glance.appwidget.cornerRadius
+import androidx.glance.appwidget.provideContent
 
 object ContactListWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
             GlanceTheme(colors = colorScheme) {
-                WidgetContent()
+                WidgetListTaskContent()
             }
         }
     }
 }
 
 @Composable
-fun WidgetContent() {
+fun WidgetListTaskContent() {
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
@@ -84,18 +83,21 @@ private fun WidgetHeader() {
 }
 
 @Composable
-private fun WidgetBody(
-) {
-    val tasks = generateFakeTask()
+private fun WidgetBody() {
+    val tasks = remember { mutableStateListOf<Task>() }
+    tasks.addAll(generateFakeTask())
+
     LazyColumn {
-        items(tasks) { item ->
-            TaskItem(item)
+        items(tasks.size) { index ->
+            TaskItem(item = tasks[index], onTaskStateChange = { updatedTask ->
+                tasks[index] = updatedTask
+            })
         }
     }
 }
 
 @Composable
-private fun TaskItem(item: Task) {
+private fun TaskItem(item: Task, onTaskStateChange: (Task) -> Unit) {
     Column {
         Row(
             modifier = GlanceModifier
@@ -103,18 +105,22 @@ private fun TaskItem(item: Task) {
                 .background(ImageProvider(R.drawable.bg_background)),
             verticalAlignment = Alignment.CenterVertically
         ) {
+
+            var updateStyle = remember { mutableStateOf(
+                TextStyle(textDecoration = TextDecoration.LineThrough))
+            }
+
+            if(item.state == StateTack.COMPLETED){
+                updateStyle.value = TextStyle(textDecoration = TextDecoration.LineThrough)
+            }
+            else{
+                updateStyle.value = TextStyle(textDecoration = TextDecoration.None)
+            }
+
             Column(GlanceModifier.padding(8.dp).defaultWeight()) {
-                val textStyle = if (item.state == StateTack.COMPLETED) {
-                    TextStyle(
-                        color = GlanceTheme.colors.onSurface,
-                        textDecoration = TextDecoration.LineThrough
-                    )
-                } else {
-                    TextStyle(color = GlanceTheme.colors.onSurface)
-                }
                 Text(
                     text = item.name,
-                    style = textStyle
+                    style = updateStyle.value
                 )
                 Spacer(modifier = GlanceModifier.height(4.dp))
                 Text(
@@ -125,33 +131,47 @@ private fun TaskItem(item: Task) {
             }
             val context = LocalContext.current
 
-            var resource by remember { mutableStateOf(R.drawable.ic_check_task_foreground) }
-            if (item.state == StateTack.COMPLETED) {
-                resource = R.drawable.ic_check_task_foreground
-            } else {
-                resource = R.drawable.ic_uncheck_task_foreground
-            }
+            var updateImage = remember { mutableStateOf(item.state) }
+
             Image(
-                ImageProvider(resource),
+                ImageProvider(getTaskImageResource(updateImage.value)),
                 contentDescription = null,
                 modifier = GlanceModifier.padding(8.dp).size(42.dp).clickable {
-                    if (item.state == StateTack.PENDING) {
-                        resource = R.drawable.ic_check_task_foreground
-                        Toast.makeText(context, "Excellent! Task accomplished.", Toast.LENGTH_SHORT)
-                            .show()
+
+                    val updatedTask = if (item.state == StateTack.PENDING) {
+                        item.copy(state = StateTack.COMPLETED)
                     } else {
-                        resource = R.drawable.ic_uncheck_task_foreground
-                        Toast.makeText(
-                            context,
-                            "Task reverted to not completed.",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        item.copy(state = StateTack.PENDING)
                     }
+
+                    if (item.state == StateTack.PENDING) {
+                        updateImage.value = StateTack.COMPLETED
+                    } else {
+                        updateImage.value = StateTack.PENDING
+                    }
+
+                    if(item.state == StateTack.COMPLETED){
+                        updateStyle.value = TextStyle(textDecoration = TextDecoration.LineThrough)
+                    }
+                    else{
+                        updateStyle.value = TextStyle(textDecoration = TextDecoration.None)
+                    }
+
+                    onTaskStateChange(updatedTask)
+                    Toast.makeText(
+                        context,
+                        if (updatedTask.state == StateTack.COMPLETED) "Excellent! Task accomplished." else "Task reverted to not completed.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             )
         }
         Spacer(modifier = GlanceModifier.height(8.dp))
     }
+}
+
+private fun getTaskImageResource(state: StateTack): Int {
+    return if (state == StateTack.PENDING) R.drawable.ic_uncheck_task_foreground else R.drawable.ic_check_task_foreground
 }
 
 fun generateFakeTask() = listOf(
