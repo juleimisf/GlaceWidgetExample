@@ -1,9 +1,9 @@
 package com.makesmartapps.glacewidgetexample
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.*
@@ -19,6 +19,7 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
+import androidx.glance.color.ColorProvider
 
 object ContactListWidget : GlanceAppWidget() {
 
@@ -106,18 +107,19 @@ private fun TaskItem(item: Task, onTaskStateChange: (Task) -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            var updateStyle = remember { mutableStateOf(
+            val updateStyle = remember { mutableStateOf(
                 TextStyle(textDecoration = TextDecoration.LineThrough))
             }
 
             if(item.state == StateTack.COMPLETED){
-                updateStyle.value = TextStyle(textDecoration = TextDecoration.LineThrough)
+                updateStyle.value = TextStyle(color = ColorProvider(Color.Gray, Color.Gray), textDecoration = TextDecoration.LineThrough, fontStyle = FontStyle.Italic)
             }
             else{
-                updateStyle.value = TextStyle(textDecoration = TextDecoration.None)
+                updateStyle.value = TextStyle(color = ColorProvider(Color.Black, Color.Black), textDecoration = TextDecoration.None, fontStyle = FontStyle.Normal)
             }
 
             Column(GlanceModifier.padding(8.dp).defaultWeight()) {
+
                 Text(
                     text = item.name,
                     style = updateStyle.value
