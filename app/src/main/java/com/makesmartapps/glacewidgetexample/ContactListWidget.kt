@@ -1,6 +1,7 @@
 package com.makesmartapps.glacewidgetexample
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
@@ -107,19 +108,9 @@ private fun TaskItem(item: Task, onTaskStateChange: (Task) -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            val updateStyle = remember { mutableStateOf(
-                TextStyle(textDecoration = TextDecoration.LineThrough))
-            }
-
-            if(item.state == StateTack.COMPLETED){
-                updateStyle.value = TextStyle(color = ColorProvider(Color.Gray, Color.Gray), textDecoration = TextDecoration.LineThrough, fontStyle = FontStyle.Italic)
-            }
-            else{
-                updateStyle.value = TextStyle(color = ColorProvider(Color.Black, Color.Black), textDecoration = TextDecoration.None, fontStyle = FontStyle.Normal)
-            }
+            val updateStyle = remember { mutableStateOf(checkTypeStyle(item)) }
 
             Column(GlanceModifier.padding(8.dp).defaultWeight()) {
-
                 Text(
                     text = item.name,
                     style = updateStyle.value
@@ -133,43 +124,73 @@ private fun TaskItem(item: Task, onTaskStateChange: (Task) -> Unit) {
             }
             val context = LocalContext.current
 
-            var updateImage = remember { mutableStateOf(item.state) }
+            TaskImageColum(item, {
+                updateStyle.value = it
+            }, context, onTaskStateChange)
 
-            Image(
-                ImageProvider(getTaskImageResource(updateImage.value)),
-                contentDescription = null,
-                modifier = GlanceModifier.padding(8.dp).size(42.dp).clickable {
-
-                    val updatedTask = if (item.state == StateTack.PENDING) {
-                        item.copy(state = StateTack.COMPLETED)
-                    } else {
-                        item.copy(state = StateTack.PENDING)
-                    }
-
-                    if (item.state == StateTack.PENDING) {
-                        updateImage.value = StateTack.COMPLETED
-                    } else {
-                        updateImage.value = StateTack.PENDING
-                    }
-
-                    if(item.state == StateTack.COMPLETED){
-                        updateStyle.value = TextStyle(textDecoration = TextDecoration.LineThrough)
-                    }
-                    else{
-                        updateStyle.value = TextStyle(textDecoration = TextDecoration.None)
-                    }
-
-                    onTaskStateChange(updatedTask)
-                    Toast.makeText(
-                        context,
-                        if (updatedTask.state == StateTack.COMPLETED) "Excellent! Task accomplished." else "Task reverted to not completed.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            )
         }
         Spacer(modifier = GlanceModifier.height(8.dp))
     }
+}
+
+@Composable
+fun TaskImageColum(
+    item: Task,
+    onTextStyleChange: (TextStyle) -> Unit,
+    context: Context,
+    onTaskStateChange: (Task) -> Unit
+) {
+    val updateImage = remember { mutableStateOf(item.state) }
+
+    Image(
+        ImageProvider(getTaskImageResource(updateImage.value)),
+        contentDescription = null,
+        modifier = GlanceModifier.padding(8.dp).size(42.dp).clickable {
+
+            val updatedTask = if (item.state == StateTack.PENDING) {
+                item.copy(state = StateTack.COMPLETED)
+            } else {
+                item.copy(state = StateTack.PENDING)
+            }
+
+            if (item.state == StateTack.PENDING) {
+                updateImage.value = StateTack.COMPLETED
+            } else {
+                updateImage.value = StateTack.PENDING
+            }
+
+            onTextStyleChange(checkTypeStyle(updatedTask))
+            onTaskStateChange(updatedTask)
+            showToastMessage(updatedTask, context)
+        }
+    )
+}
+
+private fun checkTypeStyle(item: Task): TextStyle {
+    return if (item.state == StateTack.COMPLETED) {
+        TextStyle(
+            color = ColorProvider(Color.Gray, Color.Gray),
+            textDecoration = TextDecoration.LineThrough,
+            fontStyle = FontStyle.Italic
+        )
+    } else {
+        TextStyle(
+            color = ColorProvider(Color.Black, Color.Black),
+            textDecoration = TextDecoration.None,
+            fontStyle = FontStyle.Normal
+        )
+    }
+
+}
+
+private fun showToastMessage(updatedTask: Task, context: Context) {
+    val toastMessage =
+        if (updatedTask.state == StateTack.COMPLETED) "Excellent! Task accomplished." else "Task reverted to not completed."
+
+    Toast.makeText(
+        context, toastMessage,
+        Toast.LENGTH_SHORT
+    ).show()
 }
 
 private fun getTaskImageResource(state: StateTack): Int {
