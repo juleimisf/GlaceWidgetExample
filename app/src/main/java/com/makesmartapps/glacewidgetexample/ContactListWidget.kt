@@ -1,39 +1,39 @@
 package com.makesmartapps.glacewidgetexample
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.*
 import androidx.glance.action.clickable
-import androidx.glance.appwidget.*
 import androidx.glance.layout.*
 import androidx.glance.material3.ColorProviders
 import com.makesmartapps.glacewidgetexample.ui.theme.DarkColorScheme
 import com.makesmartapps.glacewidgetexample.ui.theme.LightColorScheme
 import androidx.glance.layout.Column
 import androidx.glance.appwidget.lazy.LazyColumn
-import androidx.glance.appwidget.lazy.items
 import androidx.glance.text.*
+import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import androidx.glance.appwidget.cornerRadius
+import androidx.glance.appwidget.provideContent
+import androidx.glance.color.ColorProvider
 
 object ContactListWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
             GlanceTheme(colors = colorScheme) {
-                WidgetContent()
+                WidgetListTaskContent()
             }
         }
     }
 }
 
 @Composable
-fun WidgetContent() {
+fun WidgetListTaskContent() {
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
@@ -51,6 +51,8 @@ fun WidgetContent() {
 
 @Composable
 private fun WidgetHeader() {
+    val context = LocalContext.current
+
     Row(
         modifier = GlanceModifier
             .fillMaxWidth()
@@ -65,7 +67,7 @@ private fun WidgetHeader() {
 
         ) {
             Text(
-                text = "TaskTracker",
+                text = context.getString(R.string.task_app_title),
                 style = TextStyle(
                     color = GlanceTheme.colors.onSurface,
                     fontSize = 22.sp,
@@ -73,7 +75,7 @@ private fun WidgetHeader() {
                 )
             )
         }
-        Text(text = "Add new task", style = TextStyle(fontSize = 10.sp))
+        Text(text = context.getString( R.string.task_app_add_new_task_label), style = TextStyle(fontSize = 10.sp))
         Image(
             ImageProvider(R.drawable.ic_add_task_foreground),
             contentDescription = null,
@@ -84,18 +86,23 @@ private fun WidgetHeader() {
 }
 
 @Composable
-private fun WidgetBody(
-) {
-    val tasks = generateFakeTask()
+private fun WidgetBody() {
+    val tasks = remember { mutableStateListOf<Task>() }
+    tasks.addAll(generateFakeTask())
+
     LazyColumn {
-        items(tasks) { item ->
-            TaskItem(item)
+        items(tasks.size) { index ->
+            TaskItem(item = tasks[index], onTaskStateChange = { updatedTask ->
+                tasks[index] = updatedTask
+            })
         }
     }
 }
 
 @Composable
-private fun TaskItem(item: Task) {
+private fun TaskItem(item: Task, onTaskStateChange: (Task) -> Unit) {
+    val context = LocalContext.current
+
     Column {
         Row(
             modifier = GlanceModifier
@@ -103,55 +110,93 @@ private fun TaskItem(item: Task) {
                 .background(ImageProvider(R.drawable.bg_background)),
             verticalAlignment = Alignment.CenterVertically
         ) {
+
+            val updateStyle = remember { mutableStateOf(checkTypeStyle(item)) }
+
             Column(GlanceModifier.padding(8.dp).defaultWeight()) {
-                val textStyle = if (item.state == StateTack.COMPLETED) {
-                    TextStyle(
-                        color = GlanceTheme.colors.onSurface,
-                        textDecoration = TextDecoration.LineThrough
-                    )
-                } else {
-                    TextStyle(color = GlanceTheme.colors.onSurface)
-                }
                 Text(
                     text = item.name,
-                    style = textStyle
+                    style = updateStyle.value
                 )
                 Spacer(modifier = GlanceModifier.height(4.dp))
                 Text(
-                    text = "Deadline: ${item.date}",
+                    text = "${context.getString(R.string.task_app_deadline_task_label)} ${item.date}",
                     style = TextStyle(fontSize = 10.sp, fontStyle = FontStyle.Italic)
 
                 )
             }
-            val context = LocalContext.current
 
-            var resource by remember { mutableStateOf(R.drawable.ic_check_task_foreground) }
-            if (item.state == StateTack.COMPLETED) {
-                resource = R.drawable.ic_check_task_foreground
-            } else {
-                resource = R.drawable.ic_uncheck_task_foreground
-            }
-            Image(
-                ImageProvider(resource),
-                contentDescription = null,
-                modifier = GlanceModifier.padding(8.dp).size(42.dp).clickable {
-                    if (item.state == StateTack.PENDING) {
-                        resource = R.drawable.ic_check_task_foreground
-                        Toast.makeText(context, "Excellent! Task accomplished.", Toast.LENGTH_SHORT)
-                            .show()
-                    } else {
-                        resource = R.drawable.ic_uncheck_task_foreground
-                        Toast.makeText(
-                            context,
-                            "Task reverted to not completed.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            )
+            TaskImageColum(item, {
+                updateStyle.value = it
+            }, context, onTaskStateChange)
+
         }
         Spacer(modifier = GlanceModifier.height(8.dp))
     }
+}
+
+@Composable
+fun TaskImageColum(
+    item: Task,
+    onTextStyleChange: (TextStyle) -> Unit,
+    context: Context,
+    onTaskStateChange: (Task) -> Unit
+) {
+    val updateImage = remember { mutableStateOf(item.state) }
+
+    Image(
+        ImageProvider(getTaskImageResource(updateImage.value)),
+        contentDescription = null,
+        modifier = GlanceModifier.padding(8.dp).size(42.dp).clickable {
+
+            val updatedTask = if (item.state == StateTack.PENDING) {
+                item.copy(state = StateTack.COMPLETED)
+            } else {
+                item.copy(state = StateTack.PENDING)
+            }
+
+            if (item.state == StateTack.PENDING) {
+                updateImage.value = StateTack.COMPLETED
+            } else {
+                updateImage.value = StateTack.PENDING
+            }
+
+            onTextStyleChange(checkTypeStyle(updatedTask))
+            onTaskStateChange(updatedTask)
+            showToastMessage(updatedTask, context)
+        }
+    )
+}
+
+private fun checkTypeStyle(item: Task): TextStyle {
+    return if (item.state == StateTack.COMPLETED) {
+        TextStyle(
+            color = ColorProvider(Color.Gray, Color.Gray),
+            textDecoration = TextDecoration.LineThrough,
+            fontStyle = FontStyle.Italic
+        )
+    } else {
+        TextStyle(
+            color = ColorProvider(Color.Black, Color.Black),
+            textDecoration = TextDecoration.None,
+            fontStyle = FontStyle.Normal
+        )
+    }
+
+}
+
+private fun showToastMessage(updatedTask: Task, context: Context) {
+    val toastMessage =
+        if (updatedTask.state == StateTack.COMPLETED) context.getString(R.string.task_app_action_add_task_label) else context.getString(R.string.task_app_action_remove_task_label)
+
+    Toast.makeText(
+        context, toastMessage,
+        Toast.LENGTH_SHORT
+    ).show()
+}
+
+private fun getTaskImageResource(state: StateTack): Int {
+    return if (state == StateTack.PENDING) R.drawable.ic_uncheck_task_foreground else R.drawable.ic_check_task_foreground
 }
 
 fun generateFakeTask() = listOf(
