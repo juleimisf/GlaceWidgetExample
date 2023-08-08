@@ -1,7 +1,6 @@
 package com.makesmartapps.glacewidgetexample
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
@@ -52,6 +51,8 @@ fun WidgetListTaskContent() {
 
 @Composable
 private fun WidgetHeader() {
+    val context = LocalContext.current
+
     Row(
         modifier = GlanceModifier
             .fillMaxWidth()
@@ -66,7 +67,7 @@ private fun WidgetHeader() {
 
         ) {
             Text(
-                text = "TaskTracker",
+                text = context.getString(R.string.task_app_title),
                 style = TextStyle(
                     color = GlanceTheme.colors.onSurface,
                     fontSize = 22.sp,
@@ -74,7 +75,7 @@ private fun WidgetHeader() {
                 )
             )
         }
-        Text(text = "Add new task", style = TextStyle(fontSize = 10.sp))
+        Text(text = context.getString( R.string.task_app_add_new_task_label), style = TextStyle(fontSize = 10.sp))
         Image(
             ImageProvider(R.drawable.ic_add_task_foreground),
             contentDescription = null,
@@ -100,6 +101,8 @@ private fun WidgetBody() {
 
 @Composable
 private fun TaskItem(item: Task, onTaskStateChange: (Task) -> Unit) {
+    val context = LocalContext.current
+
     Column {
         Row(
             modifier = GlanceModifier
@@ -117,12 +120,11 @@ private fun TaskItem(item: Task, onTaskStateChange: (Task) -> Unit) {
                 )
                 Spacer(modifier = GlanceModifier.height(4.dp))
                 Text(
-                    text = "Deadline: ${item.date}",
+                    text = "${context.getString(R.string.task_app_deadline_task_label)} ${item.date}",
                     style = TextStyle(fontSize = 10.sp, fontStyle = FontStyle.Italic)
 
                 )
             }
-            val context = LocalContext.current
 
             TaskImageColum(item, {
                 updateStyle.value = it
@@ -185,7 +187,7 @@ private fun checkTypeStyle(item: Task): TextStyle {
 
 private fun showToastMessage(updatedTask: Task, context: Context) {
     val toastMessage =
-        if (updatedTask.state == StateTack.COMPLETED) "Excellent! Task accomplished." else "Task reverted to not completed."
+        if (updatedTask.state == StateTack.COMPLETED) context.getString(R.string.task_app_action_add_task_label) else context.getString(R.string.task_app_action_remove_task_label)
 
     Toast.makeText(
         context, toastMessage,
