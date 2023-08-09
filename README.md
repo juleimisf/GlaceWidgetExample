@@ -27,6 +27,7 @@ I developed a Task Tracker application using Jetpack Compose and leveraged the G
 - remember and mutableStateOf: Used remember and mutableStateOf to manage and update UI state.
 - `<data-extraction-rules>`: Incorporated data extraction rules to retrieve and display task information.
 
+
 ## App Features
 - **Widget Creation:** Created widgets using GlanceAppWidget and GlanceAppWidgetReceiver classes.
 - **Interactive UI:** Designed interactive UI components using Jetpack Compose, including Column, Row, and Text, to represent tasks and their status.
