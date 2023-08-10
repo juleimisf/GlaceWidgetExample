@@ -21,7 +21,7 @@ import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.color.ColorProvider
 
-object ContactListWidget : GlanceAppWidget() {
+object TaskListWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
@@ -202,25 +202,25 @@ private fun getTaskImageResource(state: StateTack): Int {
 fun generateFakeTask() = listOf(
     Task(
         0,
-        "Corregir el diseño de la pantalla de inicio en diferentes dispositivos",
+        "Fix home screen layout on different devices",
         "12-12-2013",
         StateTack.PENDING
     ),
     Task(
         1,
-        "Implementar la funcionalidad de compartir contenido en redes sociales",
+        "Implement the functionality of sharing content on social networks",
         "12-12-2013",
         StateTack.COMPLETED
     ),
     Task(
         3,
-        "Actualizar las dependencias y bibliotecas del proyecto",
+        "Update project dependencies and libraries",
         "12-12-2013",
         StateTack.PENDING
     ),
     Task(
         4,
-        "Colaborar en la revisión de código de otros desarrolladores",
+        "Collaborate on other developers' code reviews",
         "12-12-2013",
         StateTack.COMPLETED
     )
@@ -246,6 +246,6 @@ private val colorScheme = ColorProviders(
 
 class ContactListWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget
-        get() = ContactListWidget
+        get() = TaskListWidget
 }
 

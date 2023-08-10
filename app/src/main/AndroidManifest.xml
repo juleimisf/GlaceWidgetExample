@@ -13,7 +13,7 @@
         android:theme="@style/Theme.WidgetCourse"
         tools:targetApi="33">
         <receiver
-            android:name=".ContactListWidget"
+            android:name=".TaskListWidget"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
