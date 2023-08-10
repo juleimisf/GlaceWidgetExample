@@ -244,7 +244,7 @@ private val colorScheme = ColorProviders(
     dark = DarkColorScheme
 )
 
-class ContactListWidgetReceiver : GlanceAppWidgetReceiver() {
+class TaskListWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget
         get() = TaskListWidget
 }
