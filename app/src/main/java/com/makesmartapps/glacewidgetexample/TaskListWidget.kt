@@ -20,6 +20,7 @@ import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.color.ColorProvider
+import com.makesmartapps.glacewidgetexample.ui.theme.Task
 
 object TaskListWidget : GlanceAppWidget() {
 
@@ -224,14 +225,6 @@ fun generateFakeTask() = listOf(
         "12-12-2013",
         StateTack.COMPLETED
     )
-)
-
-
-data class Task(
-    val id: Int,
-    val name: String,
-    val date: String,
-    val state: StateTack
 )
 
 enum class StateTack {
