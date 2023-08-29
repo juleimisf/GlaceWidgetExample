@@ -4,15 +4,11 @@
       "id": 0,
      "name": "Fix home screen layout on different devices",
      "date": "2023-04-07",
-     "state": {
-        "type": "PENDING"
-     },
+     "state":"DONE"
       {
       "id": 1,
      "name": "Fix home screen layout on different devices",
      "date": "2023-04-07",
-     "state": {
-        "type": "PENDING"
-     }
+     "state": ""PENDING"
   ]
 }
