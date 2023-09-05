@@ -7,7 +7,7 @@ import com.makesmartapps.glacewidgetexample.ui.theme.RestApi
 class MainViewModelFactory(private val restApi: RestApi) : ViewModelProvider.Factory{
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if(modelClass.isAssignableFrom(MainActivityViewModel::class.java))
-            return MainActivityViewModel(MainRepository(restApi)) as T
+            return MainActivityViewModel(TaskRepository(restApi)) as T
 
         throw IllegalArgumentException("Unknown class name")
     }

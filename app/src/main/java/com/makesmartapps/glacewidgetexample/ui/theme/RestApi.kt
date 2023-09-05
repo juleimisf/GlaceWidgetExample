@@ -1,5 +1,5 @@
 package com.makesmartapps.glacewidgetexample.ui.theme
 
-interface RestApi {
+interface RemoteDataSource {
     suspend fun getTodoTasks(): List<Task>
 }

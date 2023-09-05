@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 
 class MainActivityViewModel(
-    private val repository: MainRepository
+    private val repository: TaskRepository
 ) : ViewModel() {
 
     val userIntent = Channel<TaskIntent>(Channel.UNLIMITED)

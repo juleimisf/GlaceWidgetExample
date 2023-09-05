@@ -28,13 +28,16 @@ import com.makesmartapps.glacewidgetexample.ui.theme.GlaceWidgetExampleTheme
 import com.makesmartapps.glacewidgetexample.ui.theme.RestApiImpl
 import com.makesmartapps.glacewidgetexample.ui.theme.RetrofitBuilder
 import com.makesmartapps.glacewidgetexample.ui.theme.Task
-
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.runBlocking
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             GlaceWidgetExampleTheme {
-                TaskListScreen()
+                //TaskListScreen()
+                exampleFlow()
             }
         }
     }
@@ -112,6 +115,37 @@ fun TaskItem(task: Task) {
 @Composable
 fun PreviewGreeting() {
     TaskItem(Task(0, "Hola", "32-12-1991", StateTack.COMPLETED))
+}
+
+data class Message(val sender: String, val content: String)
+
+fun exampleFlow() = runBlocking<Unit> {
+    // Crear un flujo de mensajes simulados
+    val messageFlow: Flow<Message> = flow {
+        // Simular mensajes entrantes
+        val messages = listOf(
+            Message("Usuario 1", "Hola, ¿cómo estás?"),
+            Message("Usuario 2", "¡Hola! Estoy bien, ¿y tú?"),
+            Message("Usuario 1", "Estoy bien, gracias."),
+            Message("Usuario 2", "Eso es genial."),
+            Message("Usuario 1", "¿Qué has estado haciendo?"),
+            Message("Usuario 2", "Trabajando en un proyecto de programación reactiva."),
+            Message("Usuario 1", "¡Qué interesante! Cuéntame más."),
+            Message("Usuario 2", "Claro, estoy aprendiendo a usar Flow en Kotlin.")
+        )
+
+        // Emitir cada mensaje con un retraso simulado
+        messages.forEach { message ->
+            emit(message)
+            delay(1000) // Simular un retraso de 1 segundo entre mensajes
+        }
+    }
+
+    // Observar el flujo de mensajes e imprimirlos en la consola
+    messageFlow.collect { message ->
+        Log.i("jule ","${message.sender}: ${message.content}")
+        //println("${message.sender}: ${message.content}")
+    }
 }
 
 
