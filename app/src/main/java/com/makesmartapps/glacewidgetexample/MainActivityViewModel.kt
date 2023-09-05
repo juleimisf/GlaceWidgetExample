@@ -12,10 +12,10 @@ class MainActivityViewModel(
     private val repository: MainRepository
 ) : ViewModel() {
 
-    val userIntent = Channel<MainIntent>(Channel.UNLIMITED)
-    private val _mainState = MutableStateFlow<MainState>(MainState.Idle)
+    val userIntent = Channel<TaskIntent>(Channel.UNLIMITED)
+    private val _mainState = MutableStateFlow<TaskState>(TaskState.Idle)
 
-    val mainState: StateFlow<MainState>
+    val mainState: StateFlow<TaskState>
         get() = _mainState
 
     init {
@@ -26,7 +26,10 @@ class MainActivityViewModel(
         viewModelScope.launch {
             userIntent.consumeAsFlow().collect {
                 when(it){
-                    is MainIntent.FetchTodoTasks -> fetchTodoTasks()
+                    is TaskIntent.FetchTodoTasks -> fetchTodoTasks()
+                    is TaskIntent.AddTask -> fetchTodoTasks()
+                    is TaskIntent.CompleteTask -> fetchTodoTasks()
+                    is TaskIntent.DeleteTask -> fetchTodoTasks()
                 }
             }
         }
@@ -34,12 +37,12 @@ class MainActivityViewModel(
 
     private suspend fun fetchTodoTasks(){
         viewModelScope.launch {
-            _mainState.value = MainState.Loading
+            _mainState.value = TaskState.Loading
 
             _mainState.value = try{
-                MainState.LoadTasks(repository.getTodoTasks())
+                TaskState.LoadTasks(repository.getTodoTasks())
             }catch (e: Exception){
-                MainState.Error(e.message)
+                TaskState.Error(e.message)
             }
         }
     }

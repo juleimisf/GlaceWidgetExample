@@ -50,16 +50,16 @@ fun TaskListScreen() {
     val mainState by viewModel.mainState.collectAsState()
 
     LaunchedEffect(key1 = true) {
-        viewModel.userIntent.send(MainIntent.FetchTodoTasks)
+        viewModel.userIntent.send(TaskIntent.FetchTodoTasks)
     }
 
     when (val state = mainState) {
-        is MainState.Loading -> {
+        is TaskState.Loading -> {
             // Muestra un indicador de carga
 
         }
 
-        is MainState.LoadTasks -> {
+        is TaskState.LoadTasks -> {
             // Muestra la lista de tareas
             LazyColumn {
                 items(items = state.todoTasks) { task ->
@@ -68,9 +68,8 @@ fun TaskListScreen() {
             }
         }
 
-        is MainState.Error -> {
+        is TaskState.Error -> {
             // Muestra un mensaje de error
-            Log.e("jule","erro: " + state.error)
         }
 
         else -> {
