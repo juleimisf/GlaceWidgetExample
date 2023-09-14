@@ -4,7 +4,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitBuilder {
-    private const val BASE_URL = "http://my-json-server.typicode.com/juleimisf/GlaceWidgetExample/"
+    private const val BASE_URL = "https://my-json-server.typicode.com/juleimisf/GlaceWidgetExample/"
 
     private fun getRetrofit() =
         Retrofit.Builder()
