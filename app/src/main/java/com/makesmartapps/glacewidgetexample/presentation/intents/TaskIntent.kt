@@ -1,6 +1,6 @@
-package com.makesmartapps.glacewidgetexample
+package com.makesmartapps.glacewidgetexample.presentation.intents
 
-import com.makesmartapps.glacewidgetexample.ui.theme.Task
+import com.makesmartapps.glacewidgetexample.domain.Task
 
 sealed class TaskIntent {
     object FetchTodoTasks : TaskIntent()

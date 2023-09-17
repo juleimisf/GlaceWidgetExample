@@ -1,4 +1,4 @@
-package com.makesmartapps.glacewidgetexample
+package com.makesmartapps.glacewidgetexample.presentation.ui
 
 import android.content.Context
 import android.widget.Toast
@@ -20,7 +20,8 @@ import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.color.ColorProvider
-import com.makesmartapps.glacewidgetexample.ui.theme.Task
+import com.makesmartapps.glacewidgetexample.R
+import com.makesmartapps.glacewidgetexample.domain.Task
 
 object TaskListWidget : GlanceAppWidget() {
 
@@ -76,7 +77,7 @@ private fun WidgetHeader() {
                 )
             )
         }
-        Text(text = context.getString( R.string.task_app_add_new_task_label), style = TextStyle(fontSize = 10.sp))
+        Text(text = context.getString(R.string.task_app_add_new_task_label), style = TextStyle(fontSize = 10.sp))
         Image(
             ImageProvider(R.drawable.ic_add_task_foreground),
             contentDescription = null,
@@ -188,7 +189,9 @@ private fun checkTypeStyle(item: Task): TextStyle {
 
 private fun showToastMessage(updatedTask: Task, context: Context) {
     val toastMessage =
-        if (updatedTask.state == StateTack.COMPLETED) context.getString(R.string.task_app_action_add_task_label) else context.getString(R.string.task_app_action_remove_task_label)
+        if (updatedTask.state == StateTack.COMPLETED) context.getString(R.string.task_app_action_add_task_label) else context.getString(
+            R.string.task_app_action_remove_task_label
+        )
 
     Toast.makeText(
         context, toastMessage,

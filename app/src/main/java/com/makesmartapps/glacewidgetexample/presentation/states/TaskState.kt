@@ -1,6 +1,6 @@
-package com.makesmartapps.glacewidgetexample
+package com.makesmartapps.glacewidgetexample.presentation.states
 
-import com.makesmartapps.glacewidgetexample.ui.theme.Task
+import com.makesmartapps.glacewidgetexample.domain.Task
 
 sealed class TaskState {
     object Loading: TaskState()

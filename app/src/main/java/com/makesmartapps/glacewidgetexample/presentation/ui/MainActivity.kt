@@ -1,7 +1,6 @@
-package com.makesmartapps.glacewidgetexample
+package com.makesmartapps.glacewidgetexample.presentation.ui
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -39,14 +38,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.makesmartapps.glacewidgetexample.ui.theme.GlaceWidgetExampleTheme
-import com.makesmartapps.glacewidgetexample.ui.theme.RestApiImpl
-import com.makesmartapps.glacewidgetexample.ui.theme.RetrofitBuilder
-import com.makesmartapps.glacewidgetexample.ui.theme.Task
+import com.makesmartapps.glacewidgetexample.data.RestApiImpl
+import com.makesmartapps.glacewidgetexample.data.RetrofitBuilder
+import com.makesmartapps.glacewidgetexample.domain.Task
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import com.makesmartapps.glacewidgetexample.presentation.viewmodels.MainViewModelFactory
+import com.makesmartapps.glacewidgetexample.R
+import com.makesmartapps.glacewidgetexample.presentation.intents.TaskIntent
+import com.makesmartapps.glacewidgetexample.presentation.states.TaskState
+import com.makesmartapps.glacewidgetexample.presentation.viewmodels.TaskViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,7 +65,6 @@ fun MainScreen() {
     val viewModel: TaskViewModel = viewModel(
         factory = MainViewModelFactory(RestApiImpl(RetrofitBuilder.apiService))
     )
-
 
     TaskListScreen(viewModel)
 }
@@ -98,9 +98,6 @@ fun TaskListScreen(viewModel: TaskViewModel) {
     }
 }
 
-private fun fetchData() {
-
-}
 
 @Composable
 fun ErrorScreen(onRetryClick: () -> Unit) {
@@ -111,16 +108,15 @@ fun ErrorScreen(onRetryClick: () -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Agregar la imagen SVG
+
         Image(
-            painter = painterResource(id = R.drawable.bg_error), // Reemplaza con el recurso de tu imagen SVG
-            contentDescription = null, // Opcional: agregar una descripción accesible
-            modifier = Modifier.size(120.dp) // Ajusta el tamaño según tus necesidades
+            painter = painterResource(id = R.drawable.bg_error),
+            contentDescription = null,
+            modifier = Modifier.size(120.dp)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Agregar el mensaje de error
         Text(
             text = "Disculpa, hubo un error. Inténtalo nuevamente.",
             style = TextStyle(fontSize = 18.sp),
@@ -130,10 +126,9 @@ fun ErrorScreen(onRetryClick: () -> Unit) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Agregar un botón o un área interactiva para intentar nuevamente
         Text(
             text = "Toca aquí para intentarlo nuevamente",
-            color = Color.Blue, // Puedes personalizar el color
+            color = Color.Blue,
             modifier = Modifier.clickable { onRetryClick() }
         )
     }
@@ -187,7 +182,6 @@ fun LoadingView() {
             .background(Color.White), // Fondo blanco
         contentAlignment = Alignment.Center
     ) {
-        // Aquí puedes agregar un indicador de carga, como un CircularProgressIndicator
         CircularProgressIndicator(
             color = Color.Blue, // Color del indicador de carga (puedes personalizarlo)
             modifier = Modifier.size(50.dp) // Tamaño del indicador de carga (ajusta según tus necesidades)
@@ -195,47 +189,11 @@ fun LoadingView() {
     }
 }
 
-@Composable
-fun ErrorView(error: Throwable) {
-    // Aquí puedes mostrar una vista de error y mostrar información sobre el error
-}
-
-
 @Preview
 @Composable
 fun PreviewGreeting() {
     TaskItem(Task(0, "Hola", "32-12-1991", StateTack.COMPLETED))
 }
 
-data class Message(val sender: String, val content: String)
-
-fun exampleFlow() = runBlocking<Unit> {
-    // Crear un flujo de mensajes simulados
-    val messageFlow: Flow<Message> = flow {
-        // Simular mensajes entrantes
-        val messages = listOf(
-            Message("Usuario 1", "Hola, ¿cómo estás?"),
-            Message("Usuario 2", "¡Hola! Estoy bien, ¿y tú?"),
-            Message("Usuario 1", "Estoy bien, gracias."),
-            Message("Usuario 2", "Eso es genial."),
-            Message("Usuario 1", "¿Qué has estado haciendo?"),
-            Message("Usuario 2", "Trabajando en un proyecto de programación reactiva."),
-            Message("Usuario 1", "¡Qué interesante! Cuéntame más."),
-            Message("Usuario 2", "Claro, estoy aprendiendo a usar Flow en Kotlin.")
-        )
-
-        // Emitir cada mensaje con un retraso simulado
-        messages.forEach { message ->
-            emit(message)
-            delay(1000) // Simular un retraso de 1 segundo entre mensajes
-        }
-    }
-
-    // Observar el flujo de mensajes e imprimirlos en la consola
-    messageFlow.collect { message ->
-        Log.i("jule ", "${message.sender}: ${message.content}")
-        //println("${message.sender}: ${message.content}")
-    }
-}
 
 

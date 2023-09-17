@@ -1,8 +1,9 @@
-package com.makesmartapps.glacewidgetexample
+package com.makesmartapps.glacewidgetexample.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.makesmartapps.glacewidgetexample.ui.theme.RemoteDataSource
+import com.makesmartapps.glacewidgetexample.data.RemoteDataSource
+import com.makesmartapps.glacewidgetexample.domain.TaskRepository
 
 class MainViewModelFactory(private val remoteDataSource: RemoteDataSource) : ViewModelProvider.Factory{
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

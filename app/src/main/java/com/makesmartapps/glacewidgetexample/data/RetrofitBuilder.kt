@@ -1,4 +1,4 @@
-package com.makesmartapps.glacewidgetexample.ui.theme
+package com.makesmartapps.glacewidgetexample.data
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
