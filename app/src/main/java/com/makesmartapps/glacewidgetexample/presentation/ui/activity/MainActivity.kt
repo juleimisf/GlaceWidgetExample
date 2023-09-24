@@ -1,4 +1,4 @@
-package com.makesmartapps.glacewidgetexample.presentation.ui
+package com.makesmartapps.glacewidgetexample.presentation.ui.activity
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -37,15 +37,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.makesmartapps.glacewidgetexample.ui.theme.GlaceWidgetExampleTheme
-import com.makesmartapps.glacewidgetexample.data.RestApiImpl
-import com.makesmartapps.glacewidgetexample.data.RetrofitBuilder
+import com.makesmartapps.glacewidgetexample.presentation.ui.theme.GlaceWidgetExampleTheme
+import com.makesmartapps.glacewidgetexample.data.remote.RestApiImpl
+import com.makesmartapps.glacewidgetexample.utils.RetrofitBuilder
 import com.makesmartapps.glacewidgetexample.domain.Task
 import androidx.lifecycle.viewModelScope
 import com.makesmartapps.glacewidgetexample.presentation.viewmodels.MainViewModelFactory
 import com.makesmartapps.glacewidgetexample.R
 import com.makesmartapps.glacewidgetexample.presentation.intents.TaskIntent
 import com.makesmartapps.glacewidgetexample.presentation.states.TaskState
+import com.makesmartapps.glacewidgetexample.presentation.ui.widget.StateTack
 import com.makesmartapps.glacewidgetexample.presentation.viewmodels.TaskViewModel
 import kotlinx.coroutines.launch
 

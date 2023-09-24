@@ -1,4 +1,4 @@
-package com.makesmartapps.glacewidgetexample.ui.theme
+package com.makesmartapps.glacewidgetexample.presentation.ui.theme
 
 import android.app.Activity
 import android.os.Build

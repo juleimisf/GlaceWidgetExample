@@ -1,4 +1,4 @@
-package com.makesmartapps.glacewidgetexample.presentation.ui
+package com.makesmartapps.glacewidgetexample.presentation.ui.widget
 
 import android.content.Context
 import android.widget.Toast
@@ -10,8 +10,8 @@ import androidx.glance.*
 import androidx.glance.action.clickable
 import androidx.glance.layout.*
 import androidx.glance.material3.ColorProviders
-import com.makesmartapps.glacewidgetexample.ui.theme.DarkColorScheme
-import com.makesmartapps.glacewidgetexample.ui.theme.LightColorScheme
+import com.makesmartapps.glacewidgetexample.presentation.ui.theme.DarkColorScheme
+import com.makesmartapps.glacewidgetexample.presentation.ui.theme.LightColorScheme
 import androidx.glance.layout.Column
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.text.*

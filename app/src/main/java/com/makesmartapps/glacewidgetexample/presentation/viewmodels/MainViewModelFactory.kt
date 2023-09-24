@@ -2,7 +2,7 @@ package com.makesmartapps.glacewidgetexample.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.makesmartapps.glacewidgetexample.data.RemoteDataSource
+import com.makesmartapps.glacewidgetexample.data.remote.RemoteDataSource
 import com.makesmartapps.glacewidgetexample.domain.TaskRepository
 
 class MainViewModelFactory(private val remoteDataSource: RemoteDataSource) : ViewModelProvider.Factory{

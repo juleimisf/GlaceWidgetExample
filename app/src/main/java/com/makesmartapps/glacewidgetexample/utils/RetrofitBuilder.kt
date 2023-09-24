@@ -1,5 +1,6 @@
-package com.makesmartapps.glacewidgetexample.data
+package com.makesmartapps.glacewidgetexample.utils
 
+import com.makesmartapps.glacewidgetexample.data.remote.RestApiService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 

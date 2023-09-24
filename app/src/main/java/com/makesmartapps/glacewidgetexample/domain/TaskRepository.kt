@@ -1,6 +1,6 @@
 package com.makesmartapps.glacewidgetexample.domain
 
-import com.makesmartapps.glacewidgetexample.data.RemoteDataSource
+import com.makesmartapps.glacewidgetexample.data.remote.RemoteDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 

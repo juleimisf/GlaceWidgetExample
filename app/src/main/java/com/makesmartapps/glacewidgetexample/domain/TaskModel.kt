@@ -1,6 +1,6 @@
 package com.makesmartapps.glacewidgetexample.domain
 
-import com.makesmartapps.glacewidgetexample.presentation.ui.StateTack
+import com.makesmartapps.glacewidgetexample.presentation.ui.widget.StateTack
 
 data class Task(
     val id: Int,
