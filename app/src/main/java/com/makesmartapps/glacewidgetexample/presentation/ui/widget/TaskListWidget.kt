@@ -1,12 +1,21 @@
 package com.makesmartapps.glacewidgetexample.presentation.ui.widget
 
-import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.glance.*
+import androidx.glance.ImageProvider
+import androidx.glance.GlanceModifier
+import androidx.glance.Image
+import androidx.glance.background
+import androidx.glance.GlanceId
+import androidx.glance.ColorFilter
+import androidx.glance.GlanceTheme
+import androidx.glance.LocalContext
+import androidx.glance.currentState
+import androidx.glance.action.ActionParameters
 import androidx.glance.action.clickable
 import androidx.glance.layout.*
 import androidx.glance.material3.ColorProviders
@@ -17,13 +26,26 @@ import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.text.*
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
+import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.color.ColorProvider
 import com.makesmartapps.glacewidgetexample.R
 import com.makesmartapps.glacewidgetexample.domain.Task
+import androidx.compose.runtime.Composable
+import android.content.Context
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.glance.action.actionStartActivity
+import androidx.glance.state.PreferencesGlanceStateDefinition
+import com.makesmartapps.glacewidgetexample.presentation.ui.activity.MainActivity
 
 object TaskListWidget : GlanceAppWidget() {
+
+    val key = intPreferencesKey("key")
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
@@ -34,8 +56,14 @@ object TaskListWidget : GlanceAppWidget() {
     }
 }
 
+class TaskListWidgetReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget get() = TaskListWidget
+}
+
+
 @Composable
 fun WidgetListTaskContent() {
+
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
@@ -77,7 +105,13 @@ private fun WidgetHeader() {
                 )
             )
         }
-        Text(text = context.getString(R.string.task_app_add_new_task_label), style = TextStyle(fontSize = 10.sp))
+        Text(
+            text = context.getString(R.string.task_app_add_new_task_label),
+            style = TextStyle(fontSize = 10.sp),
+            modifier = GlanceModifier.clickable(
+                actionStartActivity<MainActivity>()
+            )
+        )
         Image(
             ImageProvider(R.drawable.ic_add_task_foreground),
             contentDescription = null,
@@ -86,6 +120,35 @@ private fun WidgetHeader() {
         )
     }
 }
+
+private val ItemClickedKey = ActionParameters.Key<String>("name")
+
+
+object ActionCallBackTask : ActionCallback {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        updateAppWidgetState(context = context,
+            PreferencesGlanceStateDefinition, glanceId = glanceId) { prefs ->
+            prefs.toMutablePreferences().apply {
+                val count = this[TaskListWidget.key] ?: 0
+                this[TaskListWidget.key] = count + 1
+            }
+
+            /*  val currentTask = prefs[ItemClickedKey]
+              Log.i("jule","updateAppWidgetState" +currentTask )
+              if (currentTask != null) {
+                  prefs[TaskListWidget.key] = currentTask + 1
+              } else {
+                  prefs[TaskListWidget.key] = 0
+              }*/
+        }
+        TaskListWidget.update(context, glanceId)
+    }
+}
+
 
 @Composable
 private fun WidgetBody() {
@@ -130,7 +193,9 @@ private fun TaskItem(item: Task, onTaskStateChange: (Task) -> Unit) {
 
             TaskImageColum(item, {
                 updateStyle.value = it
-            }, context, onTaskStateChange)
+            }, context, onTaskStateChange, {
+                actionRunCallback(ActionCallBackTask::class.java)
+            })
 
         }
         Spacer(modifier = GlanceModifier.height(8.dp))
@@ -142,31 +207,37 @@ fun TaskImageColum(
     item: Task,
     onTextStyleChange: (TextStyle) -> Unit,
     context: Context,
-    onTaskStateChange: (Task) -> Unit
+    onTaskStateChange: (Task) -> Unit,
+    sendNewState: () -> Unit
 ) {
     val updateImage = remember { mutableStateOf(item.state) }
 
     Image(
         ImageProvider(getTaskImageResource(updateImage.value)),
         contentDescription = null,
-        modifier = GlanceModifier.padding(8.dp).size(42.dp).clickable {
+        modifier = GlanceModifier.padding(8.dp).size(42.dp).clickable(
+            onClick = actionRunCallback(ActionCallBackTask::class.java)
 
-            val updatedTask = if (item.state == StateTack.PENDING) {
-                item.copy(state = StateTack.COMPLETED)
-            } else {
-                item.copy(state = StateTack.PENDING)
-            }
+        )
+        //{
 
-            if (item.state == StateTack.PENDING) {
-                updateImage.value = StateTack.COMPLETED
-            } else {
-                updateImage.value = StateTack.PENDING
-            }
+        /*   val updatedTask = if (item.state == StateTack.PENDING) {
+               item.copy(state = StateTack.COMPLETED)
+           } else {
+               item.copy(state = StateTack.PENDING)
+           }
 
-            onTextStyleChange(checkTypeStyle(updatedTask))
-            onTaskStateChange(updatedTask)
-            showToastMessage(updatedTask, context)
-        }
+           if (item.state == StateTack.PENDING) {
+               updateImage.value = StateTack.COMPLETED
+           } else {
+               updateImage.value = StateTack.PENDING
+           }
+
+           onTextStyleChange(checkTypeStyle(updatedTask))
+           onTaskStateChange(updatedTask)
+           showToastMessage(updatedTask, context)
+           sendNewState()
+       }*/
     )
 }
 
@@ -240,8 +311,4 @@ private val colorScheme = ColorProviders(
     dark = DarkColorScheme
 )
 
-class TaskListWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget
-        get() = TaskListWidget
-}
 

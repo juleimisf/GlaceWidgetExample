@@ -65,7 +65,9 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
 
     //Glance
-    implementation("androidx.glance:glance-appwidget:$glance_version")
+    implementation 'androidx.glance:glance:1.0.0-alpha05'
+    implementation "androidx.glance:glance-appwidget:1.0.0-alpha05"
+    //implementation("androidx.glance:glance-appwidget:$glance_version")
     implementation("androidx.glance:glance-material3:$glance_version")
 
     //Coroutines
