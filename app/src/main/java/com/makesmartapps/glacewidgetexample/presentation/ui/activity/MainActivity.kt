@@ -1,8 +1,6 @@
 package com.makesmartapps.glacewidgetexample.presentation.ui.activity
 
-import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -38,12 +36,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.glance.appwidget.GlanceAppWidgetManager
-import androidx.glance.appwidget.state.getAppWidgetState
-import androidx.glance.currentState
-import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.makesmartapps.glacewidgetexample.presentation.ui.theme.GlaceWidgetExampleTheme
 import com.makesmartapps.glacewidgetexample.data.remote.RestApiImpl
@@ -55,25 +47,15 @@ import com.makesmartapps.glacewidgetexample.R
 import com.makesmartapps.glacewidgetexample.presentation.intents.TaskIntent
 import com.makesmartapps.glacewidgetexample.presentation.states.TaskState
 import com.makesmartapps.glacewidgetexample.presentation.ui.widget.StateTack
-import com.makesmartapps.glacewidgetexample.presentation.ui.widget.TaskListWidget
 import com.makesmartapps.glacewidgetexample.presentation.viewmodels.TaskViewModel
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.util.prefs.Preferences
-import android.appwidget.AppWidgetManager
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.glance.state.GlanceStateDefinition
 
 class MainActivity : ComponentActivity() {
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             GlaceWidgetExampleTheme {
-                val prefs = currentState<Preferences>()
-                val appLocked = prefs[intPreferencesKey("")]
-                Log.i("jule","currentState " + currentState)
                 MainScreen()
             }
         }
@@ -119,7 +101,6 @@ fun TaskListScreen(viewModel: TaskViewModel) {
     }
 }
 
-
 @Composable
 fun ErrorScreen(onRetryClick: () -> Unit) {
     Column(
@@ -139,7 +120,7 @@ fun ErrorScreen(onRetryClick: () -> Unit) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Disculpa, hubo un error. Inténtalo nuevamente.",
+            text = "Disculpa, hubo un error :(  Inténtalo nuevamente.",
             style = TextStyle(fontSize = 18.sp),
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 16.dp)
@@ -187,8 +168,7 @@ fun TaskItem(task: Task) {
             Checkbox(
                 checked = task.state == StateTack.COMPLETED,
                 onCheckedChange = { isChecked ->
-                    // Lógica para cambiar el estado de la tarea (PENDING/DONE)
-                    // Dependiendo de cómo esté implementado tu ViewModel
+                    //TODO: Logic for status
                 }
             )
         }
@@ -204,8 +184,8 @@ fun LoadingView() {
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(
-            color = Color.Blue, // Color del indicador de carga (puedes personalizarlo)
-            modifier = Modifier.size(50.dp) // Tamaño del indicador de carga (ajusta según tus necesidades)
+            color = Color.Blue,
+            modifier = Modifier.size(50.dp)
         )
     }
 }
