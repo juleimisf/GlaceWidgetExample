@@ -1,17 +1,23 @@
-package com.makesmartapps.glacewidgetexample
+package com.makesmartapps.glacewidgetexample.presentation.ui.widget
 
-import android.content.Context
 import android.widget.Toast
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.glance.*
+import androidx.glance.ImageProvider
+import androidx.glance.GlanceModifier
+import androidx.glance.Image
+import androidx.glance.background
+import androidx.glance.GlanceId
+import androidx.glance.ColorFilter
+import androidx.glance.GlanceTheme
+import androidx.glance.LocalContext
 import androidx.glance.action.clickable
 import androidx.glance.layout.*
 import androidx.glance.material3.ColorProviders
-import com.makesmartapps.glacewidgetexample.ui.theme.DarkColorScheme
-import com.makesmartapps.glacewidgetexample.ui.theme.LightColorScheme
+import com.makesmartapps.glacewidgetexample.presentation.ui.theme.DarkColorScheme
+import com.makesmartapps.glacewidgetexample.presentation.ui.theme.LightColorScheme
 import androidx.glance.layout.Column
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.text.*
@@ -20,6 +26,12 @@ import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.color.ColorProvider
+import com.makesmartapps.glacewidgetexample.R
+import com.makesmartapps.glacewidgetexample.domain.Task
+import androidx.compose.runtime.Composable
+import android.content.Context
+import androidx.glance.action.actionStartActivity
+import com.makesmartapps.glacewidgetexample.presentation.ui.activity.MainActivity
 
 object TaskListWidget : GlanceAppWidget() {
 
@@ -32,8 +44,13 @@ object TaskListWidget : GlanceAppWidget() {
     }
 }
 
+class TaskListWidgetReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget get() = TaskListWidget
+}
+
 @Composable
 fun WidgetListTaskContent() {
+
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
@@ -75,7 +92,13 @@ private fun WidgetHeader() {
                 )
             )
         }
-        Text(text = context.getString( R.string.task_app_add_new_task_label), style = TextStyle(fontSize = 10.sp))
+        Text(
+            text = context.getString(R.string.task_app_add_new_task_label),
+            style = TextStyle(fontSize = 10.sp),
+            modifier = GlanceModifier.clickable(
+                actionStartActivity<MainActivity>()
+            )
+        )
         Image(
             ImageProvider(R.drawable.ic_add_task_foreground),
             contentDescription = null,
@@ -84,6 +107,7 @@ private fun WidgetHeader() {
         )
     }
 }
+
 
 @Composable
 private fun WidgetBody() {
@@ -128,7 +152,9 @@ private fun TaskItem(item: Task, onTaskStateChange: (Task) -> Unit) {
 
             TaskImageColum(item, {
                 updateStyle.value = it
-            }, context, onTaskStateChange)
+            }, context, onTaskStateChange, {
+
+            })
 
         }
         Spacer(modifier = GlanceModifier.height(8.dp))
@@ -140,14 +166,16 @@ fun TaskImageColum(
     item: Task,
     onTextStyleChange: (TextStyle) -> Unit,
     context: Context,
-    onTaskStateChange: (Task) -> Unit
+    onTaskStateChange: (Task) -> Unit,
+    sendNewState: () -> Unit
 ) {
     val updateImage = remember { mutableStateOf(item.state) }
 
     Image(
         ImageProvider(getTaskImageResource(updateImage.value)),
         contentDescription = null,
-        modifier = GlanceModifier.padding(8.dp).size(42.dp).clickable {
+        modifier = GlanceModifier.padding(8.dp).size(42.dp).clickable
+        {
 
             val updatedTask = if (item.state == StateTack.PENDING) {
                 item.copy(state = StateTack.COMPLETED)
@@ -164,6 +192,7 @@ fun TaskImageColum(
             onTextStyleChange(checkTypeStyle(updatedTask))
             onTaskStateChange(updatedTask)
             showToastMessage(updatedTask, context)
+            sendNewState()
         }
     )
 }
@@ -187,7 +216,9 @@ private fun checkTypeStyle(item: Task): TextStyle {
 
 private fun showToastMessage(updatedTask: Task, context: Context) {
     val toastMessage =
-        if (updatedTask.state == StateTack.COMPLETED) context.getString(R.string.task_app_action_add_task_label) else context.getString(R.string.task_app_action_remove_task_label)
+        if (updatedTask.state == StateTack.COMPLETED) context.getString(R.string.task_app_action_add_task_label) else context.getString(
+            R.string.task_app_action_remove_task_label
+        )
 
     Toast.makeText(
         context, toastMessage,
@@ -226,14 +257,6 @@ fun generateFakeTask() = listOf(
     )
 )
 
-
-data class Task(
-    val id: Int,
-    val name: String,
-    val date: String,
-    val state: StateTack
-)
-
 enum class StateTack {
     PENDING, COMPLETED
 }
@@ -244,8 +267,4 @@ private val colorScheme = ColorProviders(
     dark = DarkColorScheme
 )
 
-class TaskListWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget
-        get() = TaskListWidget
-}
 

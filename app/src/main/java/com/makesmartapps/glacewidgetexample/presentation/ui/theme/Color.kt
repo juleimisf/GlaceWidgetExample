@@ -1,4 +1,4 @@
-package com.makesmartapps.glacewidgetexample.ui.theme
+package com.makesmartapps.glacewidgetexample.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
